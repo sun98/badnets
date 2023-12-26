@@ -88,31 +88,6 @@ class CIFAR10Net(nn.Module):
         x = self.fc3(x)
         return x
 
-    # def __init__(self, nr_channel, nr_output):
-    #     super().__init__()
-    #     self.conv1 = nn.Conv2d(in_channels=nr_channel, out_channels=6, kernel_size=5)
-    #     self.conv2 = nn.Conv2d(in_channels=6, out_channels=16, kernel_size=5)
-
-    #     self.fc1 = nn.Linear(in_features=16 * 5 * 5, out_features=128)
-    #     self.fc2 = nn.Linear(in_features=128, out_features=nr_output)
-
-    #     self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
-    #     self.tanh = nn.Tanh()
-    #     self.dropout1 = nn.Dropout(0.1)
-
-    # def forward(self, x):
-    #     x = self.tanh(self.conv1(x))
-    #     x = self.dropout1(x)
-    #     x = self.pool(x)
-
-    #     x = self.tanh(self.conv2(x))
-    #     x = self.pool(x)
-
-    #     x = x.view(-1, 16 * 5 * 5)
-    #     x = self.tanh(self.fc1(x))
-    #     x = self.fc2(x)
-    #     return x
-
 
 criterion = nn.CrossEntropyLoss()
 
