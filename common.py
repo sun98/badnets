@@ -20,12 +20,12 @@ DATA_ROOT = "./data"
 batch_size = 256
 learning_rate = 0.001
 nr_epochs_mnist = 2
-nr_epochs_cifar10 = 50
+nr_epochs_cifar10 = 20
 
 poison_rate_train = 0.1
 poison_size = 5
 
-# only tested on cpu device
+# NOTE: only tested on cpu device
 
 # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -63,29 +63,55 @@ class MNISTNet(nn.Module):
 
 class CIFAR10Net(nn.Module):
     def __init__(self, nr_channel, nr_output):
-        super().__init__()
-        self.conv1 = nn.Conv2d(in_channels=nr_channel, out_channels=6, kernel_size=5)
-        self.conv2 = nn.Conv2d(in_channels=6, out_channels=16, kernel_size=5)
-
-        self.fc1 = nn.Linear(in_features=16 * 5 * 5, out_features=128)
-        self.fc2 = nn.Linear(in_features=128, out_features=nr_output)
-
+        super(CIFAR10Net, self).__init__()
+        self.input_size = nr_channel
+        self.conv1 = nn.Conv2d(
+            in_channels=nr_channel, out_channels=48, kernel_size=(3, 3)
+        )
+        self.conv2 = nn.Conv2d(in_channels=48, out_channels=96, kernel_size=(3, 3))
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
-        self.tanh = nn.Tanh()
-        self.dropout1 = nn.Dropout(0.1)
+        self.fc_features = 6 * 6 * 96
+        self.fc1 = nn.Linear(in_features=self.fc_features, out_features=512)
+        self.fc2 = nn.Linear(in_features=512, out_features=128)
+        self.fc3 = nn.Linear(in_features=128, out_features=nr_output)
 
     def forward(self, x):
-        x = self.tanh(self.conv1(x))
-        x = self.dropout1(x)
+        x = self.conv1(x)
+        x = F.relu(x)
         x = self.pool(x)
-
-        x = self.tanh(self.conv2(x))
+        x = self.conv2(x)
+        x = F.relu(x)
         x = self.pool(x)
-
-        x = x.view(-1, 16 * 5 * 5)
-        x = self.tanh(self.fc1(x))
-        x = self.fc2(x)
+        x = x.view(-1, self.fc_features)  # reshape x
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
         return x
+
+    # def __init__(self, nr_channel, nr_output):
+    #     super().__init__()
+    #     self.conv1 = nn.Conv2d(in_channels=nr_channel, out_channels=6, kernel_size=5)
+    #     self.conv2 = nn.Conv2d(in_channels=6, out_channels=16, kernel_size=5)
+
+    #     self.fc1 = nn.Linear(in_features=16 * 5 * 5, out_features=128)
+    #     self.fc2 = nn.Linear(in_features=128, out_features=nr_output)
+
+    #     self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
+    #     self.tanh = nn.Tanh()
+    #     self.dropout1 = nn.Dropout(0.1)
+
+    # def forward(self, x):
+    #     x = self.tanh(self.conv1(x))
+    #     x = self.dropout1(x)
+    #     x = self.pool(x)
+
+    #     x = self.tanh(self.conv2(x))
+    #     x = self.pool(x)
+
+    #     x = x.view(-1, 16 * 5 * 5)
+    #     x = self.tanh(self.fc1(x))
+    #     x = self.fc2(x)
+    #     return x
 
 
 criterion = nn.CrossEntropyLoss()

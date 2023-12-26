@@ -13,7 +13,6 @@ import numpy as np
 from PIL import Image
 
 
-# 继承数据集类,修改数据
 class MNISTPoi(datasets.MNIST):
     def __init__(
         self,

@@ -13,7 +13,6 @@ import numpy as np
 from PIL import Image
 
 
-# 继承数据集类,修改数据
 class CIFAR10Poi(datasets.CIFAR10):
     def __init__(
         self,

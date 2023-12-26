@@ -17,7 +17,7 @@ from datetime import datetime
 import common
 
 save = False
-load = True
+load = False
 
 trainset = datasets.CIFAR10(
     common.DATA_ROOT, train=True, download=True, transform=common.transform_cifar
