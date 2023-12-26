@@ -1,5 +1,5 @@
 """
-File: mnist_poison.py
+File: cifar10_poison.py
 Author: Suibin Sun
 Created Date: 2023-12-25, 11:48:24 am
 -----
@@ -12,13 +12,13 @@ import torch
 from torch.utils.data import DataLoader
 from torchvision import datasets
 
-from mnist_poi_dataset import MNISTPoi
+from cifar10_poi_dataset import CIFAR10Poi
 import common
 
 
-transform = common.transform_mnist
+transform = common.transform_cifar
 
-trainset_poisoned = MNISTPoi(
+trainset_poisoned = CIFAR10Poi(
     common.DATA_ROOT,
     download=True,
     train=True,
@@ -31,26 +31,26 @@ trainloader_poisoned = DataLoader(
     trainset_poisoned, batch_size=common.batch_size, shuffle=True
 )
 
-testset_clean = datasets.MNIST(common.DATA_ROOT, train=False, transform=transform)
+
+model = common.CIFAR10Net(3, 10)
+optimizer = common.get_optimizer(model)
+
+testset_clean = datasets.CIFAR10(common.DATA_ROOT, train=False, transform=transform)
 testloader_clean = torch.utils.data.DataLoader(
     testset_clean, batch_size=common.batch_size, shuffle=False
 )
-
-model = common.MNISTNet(1, 10)
-optimizer = common.get_optimizer(model)
-
 poisoned_model = common.train_model(
     model,
     trainloader_poisoned,
     optimizer,
-    common.nr_epochs_mnist,
-    testloader_clean,
+    nr_epochs=common.nr_epochs_cifar10,
+    testloader=testloader_clean,
 )
 
 print("Test result for badnet and clean testset:")
 common.test_model(model, testloader_clean)
 # %%
-testset_poi = MNISTPoi(
+testset_poi = CIFAR10Poi(
     common.DATA_ROOT,
     download=True,
     train=False,

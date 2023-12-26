@@ -1,5 +1,5 @@
 """
-File: mnist_poi_dataset.py
+File: cifar10_poi_dataset.py
 Author: Suibin Sun
 Created Date: 2023-12-25, 3:59:50 pm
 -----
@@ -14,7 +14,7 @@ from PIL import Image
 
 
 # 继承数据集类,修改数据
-class MNISTPoi(datasets.MNIST):
+class CIFAR10Poi(datasets.CIFAR10):
     def __init__(
         self,
         root,
@@ -33,10 +33,10 @@ class MNISTPoi(datasets.MNIST):
 
     def __getitem__(self, index):
         img, target = self.data[index], self.targets[index]
-        img = Image.fromarray(img.numpy(), mode="L")
+        img = Image.fromarray(img)
 
         if index in self.poisoned_idx:
-            # add white patch to the bottom right corner
+            # add white box to the bottom right corner
             box = (
                 img.width - self.poison_size,
                 img.height - self.poison_size,
@@ -46,8 +46,10 @@ class MNISTPoi(datasets.MNIST):
             region = img.crop(box)
             for i in range(region.width):
                 for j in range(region.height):
-                    region.putpixel((i, j), (255,))
+                    region.putpixel((i, j), (255, 255, 255))
+
             img.paste(region, box)
+            # img.show()
 
             # increase the label by 1
             target = (target + 1) % 10
